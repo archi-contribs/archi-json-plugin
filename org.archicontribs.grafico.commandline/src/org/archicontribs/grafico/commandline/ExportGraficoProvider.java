@@ -37,13 +37,7 @@ public class ExportGraficoProvider extends AbstractCommandLineProvider {
     static final String PREFIX = Messages.ExportGraficoProvider_0;
     
     static final String OPTION_EXPORT_GRAFICO = "grafico.export"; //$NON-NLS-1$
-    // static final String OPTION_DELIMITER = "csv.exportDelimiter"; //$NON-NLS-1$
- // static final String OPTION_FILE_PREFIX = "csv.exportFilenamePrefix"; //$NON-NLS-1$
- // static final String OPTION_STRIP_NEW_LINES = "csv.exportStripNewLines"; //$NON-NLS-1$
- // static final String OPTION_LEADING_CHARS_HACK = "csv.exportLeadingZeros"; //$NON-NLS-1$
- // static final String OPTION_ENCODING = "csv.exportEncoding"; //$NON-NLS-1$
 
-    
     public ExportGraficoProvider() {
     }
     
