@@ -11,22 +11,22 @@ public class Messages extends NLS {
 
     private static final String BUNDLE_NAME = "org.archicontribs.grafico.messages"; //$NON-NLS-1$
 
-    public static String MyExporter_0;
-    public static String MyExporter_1;
+    public static String GraficoExporter_0;
+    public static String GraficoExporter_1;
 
-	public static String MyExporter_3;
+	public static String GraficoExporter_3;
 
-	public static String MyExporter_4;
+	public static String GraficoExporter_4;
 
-	public static String MyImporter_0;
+	public static String GraficoImporter_0;
 
-	public static String MyImporter_1;
+	public static String GraficoImporter_1;
 
-	public static String MyImporter_2;
+	public static String GraficoImporter_2;
 
-	public static String MyImporter_3;
+	public static String GraficoImporter_3;
 
-	public static String MyImporter_4;
+	public static String GraficoImporter_4;
 
     static {
         // initialize resource bundle

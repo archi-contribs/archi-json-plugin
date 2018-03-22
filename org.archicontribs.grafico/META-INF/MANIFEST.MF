@@ -10,3 +10,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.archimatetool.editor,
  org.eclipse.emf.common
+Export-Package: org.archicontribs.grafico

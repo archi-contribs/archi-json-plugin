@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.archimatetool.commandline.commandlineProvider">
+      <commandlineProvider
+          class="org.archicontribs.grafico.commandline.ExportGraficoProvider"
+            description="Export the current model to a Grafico filder"
+            id="org.archicontribs.grafico.commandline.exportProvider"
+            name="Export to Grafico">
+      </commandlineProvider>
+      <commandlineProvider
+          class="org.archicontribs.grafico.commandline.ImportGraficoProvider"
+            description="Import a model from a Gafico folder"
+            id="org.archicontribs.grafico.commandline.importProvider"
+            name="Import from Grafico">
+      </commandlineProvider>
+   </extension>
+
+</plugin>

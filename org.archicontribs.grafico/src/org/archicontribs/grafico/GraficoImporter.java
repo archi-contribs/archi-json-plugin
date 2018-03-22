@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.RuntimeErrorException;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
@@ -54,27 +56,31 @@ import com.archimatetool.model.IIdentifier;
  * @author Quentin Varquet
  * @author Phillip Beauvoir
  */
-public class MyImporter implements IModelImporter {
+public class GraficoImporter {
+	private IArchimateModel fModel;
 	// ID -> Object lookup table
     Map<String, IIdentifier> idLookup;
     MultiStatus resolveErrors;
     
 	ResourceSet resourceSet;
 	
-    @Override
-    public void doImport() throws IOException {
-    	File folder = askOpenFolder();
-    	
+	public GraficoImporter(IArchimateModel model) {
+        fModel = model;
+    }
+	/*
+	 * @Nullable
+	 */
+    public IArchimateModel doImport(File folder) throws IOException {    	
     	if(folder == null) {
-            return;
+            return fModel;
         }
     	
     	// Define source folders for model and images
-    	File modelFolder = new File(folder, MyExporter.MODEL_FOLDER);
-    	File imagesFolder = new File(folder, MyExporter.IMAGES_FOLDER);
+    	File modelFolder = new File(folder, GraficoExporter.MODEL_FOLDER);
+    	File imagesFolder = new File(folder, GraficoExporter.IMAGES_FOLDER);
     	
     	if (!modelFolder.isDirectory()) {
-    		return;
+    		return fModel;
     	}
     	
     	// Create ResourceSet
@@ -84,28 +90,26 @@ public class MyImporter implements IModelImporter {
     	// Reset the ID -> Object lookup table
     	idLookup = new HashMap<String, IIdentifier>();
         // Load the Model from files (it will contain unresolved proxies)
-    	IArchimateModel model = (IArchimateModel) loadModel(modelFolder);
+    	loadModel(modelFolder);
     	// Remove model from its resource (needed to save it back to a .archimate file)
-    	resourceSet.getResource(URI.createFileURI((new File(modelFolder, MyExporter.FOLDER_XML)).getAbsolutePath()), true).getContents().remove(model);
+    	resourceSet.getResource(URI.createFileURI((new File(modelFolder, GraficoExporter.FOLDER_XML)).getAbsolutePath()), true).getContents().remove(fModel);
     	
     	// Resolve proxies
     	resolveErrors = null;
-    	resolveProxies(model);
+    	resolveProxies(fModel);
     	
     	if(imagesFolder.isDirectory()) {
-    		loadImages(model, imagesFolder);
+    		loadImages(fModel, imagesFolder);
     	}
-    	
-    	// Open the Model in the Editor
-        IEditorModelManager.INSTANCE.openModel(model);
         
         // Show warnings and errors (if any)
         if (resolveErrors != null)
 	        org.eclipse.jface.dialogs.ErrorDialog.openError( 	
 	        		Display.getCurrent().getActiveShell(), 	
-	        		Messages.MyImporter_1,
-	        		Messages.MyImporter_2,
+	        		Messages.GraficoImporter_1,
+	        		Messages.GraficoImporter_2,
 	        		resolveErrors);
+        return fModel;
     }
     
     
@@ -176,11 +180,11 @@ public class MyImporter implements IModelImporter {
 			IIdentifier newObject = idLookup.get(((InternalEObject) object).eProxyURI().fragment());
 			// Log errors if proxy has not been resolved
 			if (newObject == null) {
-				String message = String.format(Messages.MyImporter_3, ((InternalEObject) object).eProxyURI().fragment(), parent.getClass().getSimpleName(), parent.getId());
+				String message = String.format(Messages.GraficoImporter_3, ((InternalEObject) object).eProxyURI().fragment(), parent.getClass().getSimpleName(), parent.getId());
 				System.out.println(message);
 				// Create resolveError the first time	
 				if (resolveErrors == null)
-					resolveErrors = new MultiStatus("org.archicontribs.grafico", IStatus.ERROR, Messages.MyImporter_4, null); //$NON-NLS-1$
+					resolveErrors = new MultiStatus("org.archicontribs.grafico", IStatus.ERROR, Messages.GraficoImporter_4, null); //$NON-NLS-1$
 				// Add an error to the list
 				resolveErrors.add(new Status(IStatus.ERROR, "org.archicontribs.grafico", message)); //$NON-NLS-1$
 			}
@@ -191,10 +195,10 @@ public class MyImporter implements IModelImporter {
 	}
     
 	private IArchimateModel loadModel(File folder) {
-		IArchimateModel model = (IArchimateModel) loadElement(new File(folder, MyExporter.FOLDER_XML));
+		fModel = (IArchimateModel) loadElement(new File(folder, GraficoExporter.FOLDER_XML));
 		IFolder tmpFolder;
 		
-		if (model != null) {
+		if (fModel != null) {
 			List<FolderType> folderList = new ArrayList<FolderType>();
 			folderList.add(FolderType.STRATEGY);
 			folderList.add(FolderType.BUSINESS);
@@ -209,11 +213,11 @@ public class MyImporter implements IModelImporter {
 			// Loop based on FolderType enumeration
 			for (int i = 0; i < folderList.size(); i++) {
 				if ((tmpFolder = loadFolder(new File(folder, folderList.get(i).toString()))) != null)
-					model.getFolders().add(tmpFolder);
+					fModel.getFolders().add(tmpFolder);
 			}
 		}
 		
-		return model;
+		return fModel;
 	}
 	
 	/**
@@ -223,16 +227,16 @@ public class MyImporter implements IModelImporter {
 	 * @return
 	 */
     private IFolder loadFolder(File folder) {
-    	if (!folder.isDirectory() || !(new File(folder, MyExporter.FOLDER_XML)).isFile()) {
+    	if (!folder.isDirectory() || !(new File(folder, GraficoExporter.FOLDER_XML)).isFile()) {
     		return null;
     	}
     	
     	// Load folder object itself
-    	IFolder currentFolder = (IFolder) loadElement(new File(folder, MyExporter.FOLDER_XML));
+    	IFolder currentFolder = (IFolder) loadElement(new File(folder, GraficoExporter.FOLDER_XML));
     	
     	// Load each elements (except folder.xml) and add them to folder
     	for (File fileOrFolder: folder.listFiles()) {
-    		if(!fileOrFolder.getName().equals(MyExporter.FOLDER_XML)) {
+    		if(!fileOrFolder.getName().equals(GraficoExporter.FOLDER_XML)) {
 				if (fileOrFolder.isFile()) {
 					currentFolder.getElements().add(loadElement(fileOrFolder));
 				} else {
@@ -262,24 +266,5 @@ public class MyImporter implements IModelImporter {
         return element;
     }
     
-    /**
-     * Ask user to select a folder.
-     */
-    private File askOpenFolder() {
-        DirectoryDialog dialog = new DirectoryDialog(Display.getCurrent().getActiveShell());
-        // Set default path from preference
-        dialog.setFilterPath(Preferences.STORE.getString(MyExporter.PREF_LAST_FOLDER));
-        dialog.setText(Messages.MyExporter_0);
-        dialog.setMessage(Messages.MyImporter_0);
-        String path = dialog.open();
-        
-        if(path == null) {
-            return null;
-        }
-        
-        // Save choosen path in preference
-        Preferences.STORE.setValue(MyExporter.PREF_LAST_FOLDER, path);
-        
-        return new File(path);
-    }
+    
 }
